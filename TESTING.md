@@ -31,7 +31,7 @@ The host machine needs a virtual loopback device wired to the output of your amp
 
 ### A chart with a known tempo change
 
-Scenario 8 needs a Rocksmith chart that contains an actual mid-song tempo change (BPM jump, ritardando, fermata measure). Confirm before starting — running scenario 8 on a steady-tempo chart proves nothing.
+Scenario 8 needs a chart chart that contains an actual mid-song tempo change (BPM jump, ritardando, fermata measure). Confirm before starting — running scenario 8 on a steady-tempo chart proves nothing.
 
 ---
 
