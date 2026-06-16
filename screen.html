@@ -1,0 +1,272 @@
+<div class="max-w-6xl mx-auto px-6 pt-24 pb-16">
+
+    <!-- ── Lobby View ──────────────────────────────────────────────── -->
+    <div id="mp-lobby-view">
+        <button onclick="showScreen('home')" class="text-gray-500 hover:text-white text-sm mb-6 flex items-center gap-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg> Back
+        </button>
+
+        <h2 class="text-3xl font-bold text-white mb-2">Multiplayer</h2>
+        <p class="text-gray-500 text-sm mb-8">Play together with friends in real-time. No scoring — just jamming.</p>
+
+        <!-- Create Room -->
+        <div class="bg-dark-700/50 rounded-xl p-5 border border-gray-800/50 mb-4">
+            <h3 class="text-white font-semibold mb-3">Create Room</h3>
+            <div class="flex gap-3">
+                <input id="mp-create-name" type="text" placeholder="Your name"
+                    class="flex-1 bg-dark-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-accent/50">
+                <button onclick="mpCreateRoom()"
+                    class="px-5 py-2 bg-accent hover:bg-accent-light rounded-lg text-sm font-semibold text-white transition flex-shrink-0">
+                    Create Room
+                </button>
+            </div>
+        </div>
+
+        <!-- Join Room -->
+        <div class="bg-dark-700/50 rounded-xl p-5 border border-gray-800/50">
+            <h3 class="text-white font-semibold mb-3">Join Room</h3>
+            <div class="flex gap-3">
+                <input id="mp-join-name" type="text" placeholder="Your name"
+                    class="flex-1 bg-dark-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-accent/50">
+                <input id="mp-join-code" type="text" placeholder="CODE" maxlength="6"
+                    class="w-28 bg-dark-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white text-center font-mono tracking-widest uppercase placeholder-gray-500 focus:outline-none focus:border-accent/50"
+                    oninput="this.value=this.value.toUpperCase()">
+                <button onclick="mpJoinRoom()"
+                    class="px-5 py-2 bg-accent hover:bg-accent-light rounded-lg text-sm font-semibold text-white transition flex-shrink-0">
+                    Join
+                </button>
+            </div>
+        </div>
+
+        <div id="mp-lobby-error" class="text-red-400 text-sm mt-3 hidden"></div>
+    </div>
+
+    <!-- ── Room View ───────────────────────────────────────────────── -->
+    <div id="mp-room-view" class="hidden">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <div class="flex items-center gap-3 mb-1">
+                    <span class="text-xs text-gray-500 uppercase tracking-wider">Room Code</span>
+                    <button id="mp-room-code" onclick="mpCopyCode()"
+                        class="text-2xl font-bold font-mono tracking-[0.3em] text-accent hover:text-accent-light transition cursor-pointer"
+                        title="Click to copy"></button>
+                    <span id="mp-copy-toast" class="text-xs text-green-400 opacity-0 transition-opacity">Copied!</span>
+                </div>
+                <div id="mp-connection-status" class="text-xs text-gray-500"></div>
+            </div>
+            <button onclick="mpLeaveRoom()"
+                class="px-4 py-2 bg-dark-700 hover:bg-red-900/30 border border-gray-700 hover:border-red-800/50 rounded-lg text-sm text-gray-400 hover:text-red-400 transition">
+                Leave Room
+            </button>
+        </div>
+
+        <!-- Two-column layout -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+            <!-- Left: Now Playing + Queue (2/3 width) -->
+            <div class="md:col-span-2 space-y-4">
+
+                <!-- Now Playing -->
+                <div id="mp-now-playing" class="bg-dark-700/50 rounded-xl p-5 border border-gray-800/50">
+                    <div class="flex items-center gap-2 mb-3">
+                        <div id="mp-rec-indicator" class="hidden w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></div>
+                        <h3 class="text-white font-semibold text-sm">Now Playing</h3>
+                    </div>
+                    <div id="mp-now-playing-info" class="text-gray-500 text-sm">No song loaded. Add songs to the queue below.</div>
+
+                    <!-- Host Controls -->
+                    <div id="mp-host-controls" class="hidden mt-4 flex flex-wrap items-center gap-3">
+                        <button onclick="mpTogglePlay()" id="mp-btn-play"
+                            class="px-4 py-2 bg-accent hover:bg-accent-light rounded-lg text-sm font-semibold text-white transition">
+                            Play
+                        </button>
+                        <button onclick="mpSeek(-5)"
+                            class="px-3 py-2 bg-dark-600 hover:bg-dark-500 rounded-lg text-xs text-gray-300 transition">-5s</button>
+                        <button onclick="mpSeek(5)"
+                            class="px-3 py-2 bg-dark-600 hover:bg-dark-500 rounded-lg text-xs text-gray-300 transition">+5s</button>
+
+                        <div class="flex items-center gap-2">
+                            <label class="text-xs text-gray-500">Speed</label>
+                            <input type="range" id="mp-speed" min="25" max="150" value="100" step="5"
+                                class="w-20 accent-blue-500" oninput="mpSetSpeed(this.value)">
+                            <span id="mp-speed-label" class="text-xs text-gray-400 w-10">1.00x</span>
+                        </div>
+
+                        <div class="flex-1"></div>
+
+                        <button onclick="mpVoteSkip()" id="mp-btn-skip"
+                            class="px-3 py-2 bg-dark-600 hover:bg-orange-900/30 rounded-lg text-xs text-gray-400 hover:text-orange-400 transition">
+                            Skip <span id="mp-skip-count"></span>
+                        </button>
+                    </div>
+
+                    <!-- Non-host skip button -->
+                    <div id="mp-guest-controls" class="hidden mt-4">
+                        <button onclick="mpVoteSkip()" id="mp-btn-skip-guest"
+                            class="px-3 py-2 bg-dark-600 hover:bg-orange-900/30 rounded-lg text-xs text-gray-400 hover:text-orange-400 transition">
+                            Vote Skip <span id="mp-skip-count-guest"></span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Queue -->
+                <div class="bg-dark-700/50 rounded-xl p-5 border border-gray-800/50">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-white font-semibold text-sm">Queue</h3>
+                        <span id="mp-queue-count" class="text-xs text-gray-500"></span>
+                    </div>
+                    <div id="mp-queue-list" class="space-y-2 mb-4">
+                        <p class="text-gray-500 text-sm">No songs in queue.</p>
+                    </div>
+
+                    <!-- Search & Add -->
+                    <div class="border-t border-gray-800/50 pt-4 mt-2">
+                        <div class="flex gap-2 mb-3">
+                            <input id="mp-search" type="text" placeholder="Search songs to add..."
+                                class="flex-1 bg-dark-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-accent/50"
+                                onkeydown="if(event.key==='Enter')mpSearchSongs()">
+                            <button onclick="mpSearchSongs()"
+                                class="px-4 py-2 bg-dark-600 hover:bg-dark-500 rounded-lg text-sm text-gray-300 transition">Search</button>
+                        </div>
+                        <div id="mp-search-results" class="space-y-1 max-h-48 overflow-y-auto"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Players + Recording (1/3 width) -->
+            <div class="space-y-4">
+
+                <!-- Players -->
+                <div class="bg-dark-700/50 rounded-xl p-5 border border-gray-800/50">
+                    <h3 class="text-white font-semibold text-sm mb-3">Players</h3>
+                    <div id="mp-player-list" class="space-y-2"></div>
+                </div>
+
+                <!-- Live audio (Phase 2d) -->
+                <div class="bg-dark-700/50 rounded-xl p-5 border border-gray-800/50">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-white font-semibold text-sm">Live audio</h3>
+                        <span id="mp-broadcast-pill" class="hidden text-xs px-2 py-0.5 rounded-full bg-red-900/40 border border-red-700/50 text-red-300"></span>
+                    </div>
+                    <p class="text-xs text-gray-500 mb-3">
+                        Broadcast your guitar to peers. Route your amp/effects chain into a loopback input
+                        (VB-Audio Cable, BlackHole, PipeWire), pick it below, then enable broadcast.
+                    </p>
+                    <label class="relative inline-flex items-center gap-3 cursor-pointer mb-3">
+                        <input type="checkbox" id="mp-broadcast-toggle" class="sr-only peer" onchange="mpToggleBroadcast()">
+                        <div class="w-9 h-5 bg-dark-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-gray-400 after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-red-600 peer-checked:after:bg-white"></div>
+                        <span class="text-sm text-gray-300">Broadcast my sound</span>
+                    </label>
+                    <div class="flex items-center gap-2 mb-2">
+                        <label for="mp-broadcast-device" class="sr-only">Input device</label>
+                        <select id="mp-broadcast-device"
+                            class="flex-1 bg-dark-800 border border-gray-700 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-accent/50">
+                            <option value="">Default device</option>
+                        </select>
+                        <button onclick="mpRefreshBroadcastDevices()"
+                            class="px-2 py-1.5 bg-dark-600 hover:bg-dark-500 rounded-lg text-xs text-gray-300 transition flex-shrink-0"
+                            title="Refresh device list" aria-label="Refresh device list">↻</button>
+                    </div>
+                    <div class="bg-dark-800 rounded h-1.5 overflow-hidden">
+                        <div id="mp-broadcast-level-fill" class="h-full bg-accent transition-[width] duration-75" style="width:0%"></div>
+                    </div>
+                    <div id="mp-broadcast-stats" class="hidden text-xs text-gray-500 mt-2"></div>
+                    <div id="mp-broadcast-tempo-warning" class="hidden text-xs text-amber-300 mt-2">
+                        ⚠ Tempo change at this measure — listeners may hear a brief shift.
+                    </div>
+                </div>
+
+                <!-- Recording (host only) -->
+                <div id="mp-recording-section" class="hidden bg-dark-700/50 rounded-xl p-5 border border-gray-800/50">
+                    <h3 class="text-white font-semibold text-sm mb-3">Recording</h3>
+
+                    <div class="flex items-center gap-3 mb-3">
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="mp-rec-toggle" class="sr-only peer" onchange="mpToggleRecording()">
+                            <div class="w-9 h-5 bg-dark-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-gray-400 after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-red-600 peer-checked:after:bg-white"></div>
+                        </label>
+                        <span class="text-sm text-gray-300">Record This Song</span>
+                    </div>
+
+                    <div id="mp-rec-status" class="text-xs text-gray-500 mb-3"></div>
+
+                    <!-- Upload progress -->
+                    <div id="mp-upload-progress" class="hidden mb-3">
+                        <div class="text-xs text-gray-400 mb-1">Uploading recording...</div>
+                        <div class="w-full bg-dark-800 rounded-full h-1.5">
+                            <div id="mp-upload-bar" class="bg-accent h-1.5 rounded-full transition-all" style="width:0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Mixdown -->
+                    <div id="mp-mixdown-section" class="hidden">
+                        <div id="mp-mixdown-status" class="text-xs text-gray-400 mb-2"></div>
+                        <button onclick="mpOpenMixer()" id="mp-btn-open-mixer"
+                            class="px-4 py-2 bg-accent hover:bg-accent-light rounded-lg text-xs font-semibold text-white transition w-full mb-2">
+                            Open Mixer
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Recording indicator for guests -->
+                <div id="mp-guest-rec-status" class="hidden bg-dark-700/50 rounded-xl p-5 border border-gray-800/50">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></div>
+                        <h3 class="text-white font-semibold text-sm">Recording</h3>
+                    </div>
+                    <div id="mp-guest-rec-info" class="text-xs text-gray-400">Your input is being recorded.</div>
+                    <div id="mp-guest-upload-progress" class="hidden mt-2">
+                        <div class="text-xs text-gray-400 mb-1">Uploading...</div>
+                        <div class="w-full bg-dark-800 rounded-full h-1.5">
+                            <div id="mp-guest-upload-bar" class="bg-accent h-1.5 rounded-full transition-all" style="width:0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Mini DAW Mixer ─────────────────────────────────────── -->
+    <div id="mp-mixer-view" class="hidden">
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <h3 class="text-xl font-bold text-white">Mixer</h3>
+                <p class="text-xs text-gray-500">Drag tracks to align, adjust volume, then export</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="mpMixerPlayPause()" id="mp-mixer-play"
+                    class="px-4 py-2 bg-accent hover:bg-accent-light rounded-lg text-sm font-semibold text-white transition">
+                    Preview
+                </button>
+                <button onclick="mpMixerExport()" id="mp-mixer-export"
+                    class="px-4 py-2 bg-green-700 hover:bg-green-600 rounded-lg text-sm font-semibold text-white transition">
+                    Export Mix
+                </button>
+                <a id="mp-mixer-download" class="hidden px-4 py-2 bg-dark-600 hover:bg-dark-500 rounded-lg text-sm text-accent-light transition" download>
+                    Download
+                </a>
+                <button onclick="mpCloseMixer()"
+                    class="px-4 py-2 bg-dark-700 hover:bg-dark-600 rounded-lg text-sm text-gray-400 transition">
+                    Back
+                </button>
+            </div>
+        </div>
+
+        <!-- Timeline header -->
+        <div class="bg-dark-800 rounded-t-xl border border-gray-800/50 border-b-0 px-3 py-2 flex items-center gap-3">
+            <span id="mp-mixer-time" class="text-xs text-gray-400 font-mono w-16">0:00.0</span>
+            <div id="mp-mixer-timeline-ruler" class="flex-1 h-4 relative cursor-pointer" onclick="mpMixerSeek(event)">
+                <canvas id="mp-mixer-ruler-canvas" class="w-full h-full"></canvas>
+                <div id="mp-mixer-playhead" class="absolute top-0 bottom-0 w-0.5 bg-white pointer-events-none" style="left:0%"></div>
+            </div>
+        </div>
+
+        <!-- Tracks container -->
+        <div id="mp-mixer-tracks" class="bg-dark-700/50 rounded-b-xl border border-gray-800/50 divide-y divide-gray-800/30 max-h-[60vh] overflow-y-auto">
+            <!-- tracks injected here -->
+        </div>
+    </div>
+</div>

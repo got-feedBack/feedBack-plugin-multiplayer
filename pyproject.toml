@@ -1,0 +1,7 @@
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+# Default per-test timeout: prevents WebSocket-based tests from hanging the
+# entire pytest run if the relay deadlocks or a receive blocks forever on a
+# message that never arrives. Per-test overrides via @pytest.mark.timeout(N).
+timeout = 30
