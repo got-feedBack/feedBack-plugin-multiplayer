@@ -1,6 +1,6 @@
 # Multiplayer
 
-A [Slopsmith](https://github.com/byrongamatos/slopsmith) plugin that lets multiple players join a room and play songs together with synced highways, a shared song queue, and optional post-song recording with a built-in mixer.
+A [Slopsmith](https://github.com/got-feedback/feedback) plugin that lets multiple players join a room and play songs together with synced highways, a shared song queue, and optional post-song recording with a built-in mixer.
 
 ## Features
 
@@ -103,7 +103,7 @@ After recording, the host opens the Mixer to align and export:
 
 ```bash
 cd plugins
-git clone https://github.com/byrongamatos/slopsmith-plugin-multiplayer.git multiplayer
+git clone https://github.com/got-feedback/feedback-plugin-multiplayer.git multiplayer
 ```
 
 Restart Slopsmith and the plugin will appear in the Plugins dropdown.
