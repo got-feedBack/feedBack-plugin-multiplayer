@@ -3830,7 +3830,7 @@ function _injectPlayerRecBtn() {
         btn.textContent = '⏺ REC';
     }
     const separator = c.querySelector('span.text-gray-700');
-    if (separator) c.insertBefore(btn, separator);
+    if (separator && separator.parentNode === c) c.insertBefore(btn, separator);
     else c.appendChild(btn);
 }
 
