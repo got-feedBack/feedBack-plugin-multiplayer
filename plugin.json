@@ -3,8 +3,14 @@
   "name": "Multiplayer",
   "version": "1.0.0",
   "license": "GPL-3.0-or-later",
-  "nav": { "label": "Multiplayer", "screen": "multiplayer" },
+  "nav": {
+    "label": "Multiplayer",
+    "screen": "multiplayer"
+  },
   "screen": "screen.html",
   "script": "screen.js",
-  "routes": "routes.py"
+  "routes": "routes.py",
+  "category": "practice",
+  "description": "Play together in real time.",
+  "icon": "assets/thumb.svg"
 }
