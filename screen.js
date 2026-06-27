@@ -4360,7 +4360,7 @@ async function _armRecording() {
     // Get mic access and prepare MediaRecorder, but don't start yet — wait for play.
     try {
         // Use desktop bridge if available
-        if (window.slopsmithDesktop?.audio?.startRecording) {
+        if (window.feedBackDesktop?.audio?.startRecording) {
             _recArmed = true;
             const statusEl = _isHost
                 ? document.getElementById('mp-rec-status')
@@ -4412,8 +4412,8 @@ function _startRecordingNow() {
     const audio = document.getElementById('audio');
     _recStartServerTime = audio ? audio.currentTime * 1000 : 0;  // ms into song
 
-    if (window.slopsmithDesktop?.audio?.startRecording) {
-        window.slopsmithDesktop.audio.startRecording();
+    if (window.feedBackDesktop?.audio?.startRecording) {
+        window.feedBackDesktop.audio.startRecording();
         _isRecording = true;
         return;
     }
@@ -4447,8 +4447,8 @@ async function _stopAndUploadRecording() {
     if (!_isRecording) return;
 
     // Desktop bridge
-    if (window.slopsmithDesktop?.audio?.stopRecording) {
-        const blob = await window.slopsmithDesktop.audio.stopRecording();
+    if (window.feedBackDesktop?.audio?.stopRecording) {
+        const blob = await window.feedBackDesktop.audio.stopRecording();
         _isRecording = false;
         if (blob) await _uploadBlob(blob, 'recording.wav');
         return;
