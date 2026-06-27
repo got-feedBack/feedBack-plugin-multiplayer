@@ -1,5 +1,16 @@
 // Multiplayer plugin — synced rooms, shared queue, optional mixdown
 
+// ── Desktop-bridge back-compat ──────────────────────────────────────────────
+// The host renamed window.slopsmithDesktop → window.feedBackDesktop
+// (got-feedback/feedBack-desktop#40). On desktop builds that still expose only
+// the legacy name, alias it so the feedBackDesktop reads below work on every
+// desktop in any release order. No-op in the browser and on the new bridge.
+try {
+    if (typeof window !== 'undefined' && !window.feedBackDesktop && window.slopsmithDesktop) {
+        window.feedBackDesktop = window.slopsmithDesktop;
+    }
+} catch (_) { /* frozen window — ignore */ }
+
 (function () {
 'use strict';
 
@@ -4360,7 +4371,7 @@ async function _armRecording() {
     // Get mic access and prepare MediaRecorder, but don't start yet — wait for play.
     try {
         // Use desktop bridge if available
-        if (window.slopsmithDesktop?.audio?.startRecording) {
+        if (window.feedBackDesktop?.audio?.startRecording) {
             _recArmed = true;
             const statusEl = _isHost
                 ? document.getElementById('mp-rec-status')
@@ -4412,8 +4423,8 @@ function _startRecordingNow() {
     const audio = document.getElementById('audio');
     _recStartServerTime = audio ? audio.currentTime * 1000 : 0;  // ms into song
 
-    if (window.slopsmithDesktop?.audio?.startRecording) {
-        window.slopsmithDesktop.audio.startRecording();
+    if (window.feedBackDesktop?.audio?.startRecording) {
+        window.feedBackDesktop.audio.startRecording();
         _isRecording = true;
         return;
     }
@@ -4447,8 +4458,8 @@ async function _stopAndUploadRecording() {
     if (!_isRecording) return;
 
     // Desktop bridge
-    if (window.slopsmithDesktop?.audio?.stopRecording) {
-        const blob = await window.slopsmithDesktop.audio.stopRecording();
+    if (window.feedBackDesktop?.audio?.stopRecording) {
+        const blob = await window.feedBackDesktop.audio.stopRecording();
         _isRecording = false;
         if (blob) await _uploadBlob(blob, 'recording.wav');
         return;
