@@ -1,0 +1,7 @@
+fastapi
+httpx
+pyyaml
+python-multipart
+pytest
+pytest-asyncio
+pytest-timeout
