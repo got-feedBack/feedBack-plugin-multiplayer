@@ -4159,18 +4159,32 @@ window.mpSearchSongs = async function () {
         return;
     }
 
-    container.innerHTML = data.songs.map(s => {
-        const arrs = (s.arrangements || []).map(a => a.name || a);
-        const arrsJson = JSON.stringify(arrs).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    _searchResults = data.songs;
+    container.innerHTML = data.songs.map((s, i) => {
         return `<div class="flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-dark-700/50 transition">
             <div class="flex-1 min-w-0">
                 <span class="text-sm text-white">${esc(s.title)}</span>
                 <span class="text-xs text-gray-500 ml-2">${esc(s.artist)}</span>
             </div>
-            <button onclick="mpAddToQueue('${encodeURIComponent(s.filename)}','${esc(s.title).replace(/'/g,"\\'")}','${esc(s.artist).replace(/'/g,"\\'")}', '${arrsJson}')"
+            <button onclick="mpAddSearchResult(${i})"
                 class="px-3 py-1 bg-dark-600 hover:bg-accent/30 rounded text-xs text-gray-300 hover:text-white transition flex-shrink-0">+ Add</button>
         </div>`;
     }).join('');
+};
+
+// "+ Add" buttons refer to the last search's results by index. Building
+// the song's filename / title / artist into an inline onclick string
+// broke for a filename with an apostrophe (encodeURIComponent leaves `'`
+// alone, so it ended the JS string literal) and for a title or artist
+// with a double quote (esc() doesn't escape quotes, so it ended the
+// attribute) — the button silently did nothing.
+let _searchResults = [];
+
+window.mpAddSearchResult = function (i) {
+    const s = _searchResults[i];
+    if (!s) return;
+    const arrs = (s.arrangements || []).map(a => a.name || a);
+    return window.mpAddToQueue(encodeURIComponent(s.filename), s.title, s.artist, JSON.stringify(arrs));
 };
 
 window.mpAddToQueue = async function (filename, title, artist, arrsJson) {
@@ -5114,5 +5128,12 @@ window.addEventListener('beforeunload', () => {
         _broadcastStop({});
     }
 });
+
+// Node-only test hook (tests/*.test.js); browsers never see `module`.
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        _setRoomForTest(code, playerId) { _roomCode = code; _playerId = playerId; },
+    };
+}
 
 })();
