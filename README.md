@@ -95,7 +95,7 @@ After recording, the host opens the Mixer to align and export:
 
 - Slopsmith with WebSocket support (standard)
 - For recording: browser mic access (Chrome/Edge recommended)
-- For peer audio broadcast: WebCodecs (Chrome/Edge or Firefox 130+) and a loopback input device (see "Live Audio" below for OS-specific setup)
+- For peer audio broadcast: WebCodecs (Chrome/Edge or Firefox 130+) and a loopback input device (see [Live Audio](#live-audio-peer-broadcast) above for OS-specific setup)
 - For stem mixing: sloppak songs with split stems (use the Sloppak Converter plugin)
 - FFmpeg available in the Docker container (included by default)
 
@@ -107,6 +107,19 @@ git clone https://github.com/got-feedback/feedback-plugin-multiplayer.git multip
 ```
 
 Restart Slopsmith and the plugin will appear in the Plugins dropdown.
+
+## Joining from another device
+
+A room lives in the memory of the feedBack server that created it. Every copy of the desktop app runs its own server, so typing a room code into the desktop app on a second computer shows "Room not found". The second player has to connect to the host's server instead.
+
+To let another device join a room hosted in the feedBack desktop app:
+
+1. On the host computer, open **Plugins** in the sidebar, click **Plugin Manager**, and turn on **Network sharing → Allow access from other devices on my network**. This restarts the server and ends any open room, so do it before you create the room.
+2. The panel lists the addresses other devices can open (`http://<host-ip>:<port>`). If your firewall asks, allow fee[dB]ack.
+3. On the other device, open one of those addresses in a browser on the same network (Chrome or Edge recommended).
+4. Open **Multiplayer** there and join with the room code.
+
+Network sharing is off by default, so only the host computer can connect. On a self-hosted (Docker) server, every player opens the same server address.
 
 ## Cross-Platform
 
